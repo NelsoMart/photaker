@@ -21,6 +21,7 @@ export default function Home() {
       Carnet: CarnetEST
     })
   }
+
   return (
     <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={styles.principal}>
@@ -51,6 +52,7 @@ export default function Home() {
       </View>
     </ScrollView>
   );
+  
 }
 
 const styles = StyleSheet.create({

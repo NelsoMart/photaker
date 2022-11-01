@@ -7,7 +7,7 @@ import { View, Text, StyleSheet, TouchableOpacity,TextInput, Image,
 import {useNavigation} from '@react-navigation/native';
 import { Keyboard } from 'react-native'; 
 import LottieView from 'lottie-react-native';
-import NotFoundAnimation from './LottieFiles/94729-not-found.json';
+import NotFoundAnimation from '../LottieFiles/94729-not-found.json';
 import NetInfo from '@react-native-community/netinfo';
 
 import { showMessage } from "react-native-flash-message";
@@ -20,7 +20,6 @@ import fetchDatos from '../Components/fetchDatos';
 export default function Busqueda({route}) {
 
   const {Carnet} = route.params
-
 
      const [data, setData] = useState([]);
      const [text, onChangeText] = useState("Buscar Expediente");
@@ -197,8 +196,6 @@ export default function Busqueda({route}) {
         <View style={{borderColor:'lightgray', borderWidth:0.5, marginVertical: '1%' }}/>
       )
     }
-
-    // max : 150 kb
 
     return (
       <View style={styles.content}>
