@@ -6,7 +6,6 @@ import DispachMessage from '../src/useFlashMessage';
 
 // create a component
 const useFetch = () => {
-
   //* -------------- Deconstrucción de mis hooks ---------------
   const {
     messageWarning,
@@ -27,14 +26,13 @@ const useFetch = () => {
             body: formData
           }
 
-          callBackStateLoaddingTrue();
+          // callBackStateLoaddingTrue();
 
           NetInfo.fetch().then((state) => {
 
             if (state.isConnected == true) {
 
-              // callBackStateLoaddingTrue();
-
+              callBackStateLoaddingTrue(); 
 
               fetch(url, options)
               .then((response) => FetchPlace == "Busqueda"?response.json():response.text() )

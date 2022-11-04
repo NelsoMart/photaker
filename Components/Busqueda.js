@@ -72,16 +72,22 @@ MyCustomFetch,
         // Unsubscribe to network state updates
         unsubscribe();
       };
-    }, [MyInputType, Carnet, text, refreshing]);
+    }, [MyInputType, Carnet, text, refreshing, loading]);
 
+
+    const wait = (timeout) => {
+      return new Promise(resolve => setTimeout(resolve, timeout));
+    }
 
     const onRefresh = () => {
       //Clear old data of the list
       setData([])
-      setRefreshing(true)
+      // setRefreshing(true)
       //Call the Service to get the latest data
       fetchData()
     }
+
+
 
     const FetchPlace = "Busqueda";
 
@@ -89,6 +95,7 @@ MyCustomFetch,
       // 26396 topnumexp
 
       // setRefreshing(true);
+      setLoading(true);
 
       const callbackOk = (json) => {
         if (JSON.stringify(json) == "0") {
@@ -99,6 +106,7 @@ MyCustomFetch,
           setDataResult("");
         }
         setRefreshing(false);
+        setLoading(false);
 
         //?Deconstrucción if empleado
         // const {IDEmpleado, Empleado, Cargo, Unidad, Foto} = json[0];
@@ -108,14 +116,18 @@ MyCustomFetch,
         
       const callBackError = (error) => {
         setRefreshing(false);
+        setLoading(false);
         console.error(error);
         messageError("revice su conexión a internet e inténtelo de nuevo");
       }
 
       const callBackStateLoaddingTrue = () => {
+        // setRefreshing(true)
         setLoading(true)
+        
       }
       const callBackStateLoadingFalse = () => {
+        // setRefreshing(false)
         setLoading(false)
       }
 
@@ -137,7 +149,6 @@ MyCustomFetch,
       if (text == "Buscar Expediente" || text == "") {
         Alert.alert("Escriba algo");
       } else {
-
 
         // setRefreshing(true);
 
@@ -284,13 +295,15 @@ MyCustomFetch,
         </TouchableOpacity>
 
         
-        { loading===true?
+        
+         { loading?
           <View>
              <ActivityIndicator/>
+             {/* <Text>Loading {JSON.stringify(loading)}</Text>
+             <Text>Refreshin {JSON.stringify(refreshing)}</Text> */}
           </View>
-        :
-        null
-        }
+          : null}
+        
 
         {data == "" && dataResult == "Ok" ? (
           <View style={styles.content}>
@@ -334,6 +347,7 @@ MyCustomFetch,
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh.bind(this)}
+                // onRefresh={() => onRefresh()}
               />
             }
           />
