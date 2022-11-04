@@ -2,8 +2,8 @@
 //import liraries
 import React, { useEffect, useState, useCallback, useRef} from 'react';
 
-import { View, Text, StyleSheet, TouchableOpacity,TextInput, Image, 
-          Alert, RefreshControl, FlatList} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity,TextInput, 
+          Alert, RefreshControl, FlatList, ActivityIndicator} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import { Keyboard } from 'react-native'; 
 import LottieView from 'lottie-react-native';
@@ -15,9 +15,24 @@ import { showMessage } from "react-native-flash-message";
 Keyboard.dismiss()
 
 import fetchDatos from '../Components/fetchDatos';
+import DispachMessage from '../src/useFlashMessage';
+import useFetch from '../src/useFetch';
+
 
 // create a function
 export default function Busqueda({route}) {
+
+  //* -------------- Deconstrucción de mis hooks ---------------
+  const {
+    messageError,
+    messageWarning,
+    messageSuccess
+} = DispachMessage();
+
+const {
+MyCustomFetch,
+} = useFetch();
+//* -----------------------------------------------------------
 
   const {Carnet} = route.params
 
@@ -26,6 +41,8 @@ export default function Busqueda({route}) {
      const [refreshing, setRefreshing] = useState(false)
      const [dataResult, setDataResult] = useState('')
      const [MyInputType, SetInputTtype] = useState("numeric");
+     const [loading, setLoading] = useState(false);
+
 
 
     //  const flatListRef = useRef(null)
@@ -55,7 +72,7 @@ export default function Busqueda({route}) {
         // Unsubscribe to network state updates
         unsubscribe();
       };
-    }, [MyInputType, Carnet, text]);
+    }, [MyInputType, Carnet, text, refreshing]);
 
 
     const onRefresh = () => {
@@ -66,8 +83,41 @@ export default function Busqueda({route}) {
       fetchData()
     }
 
+    const FetchPlace = "Busqueda";
+
     const fetchData = () => {
       // 26396 topnumexp
+
+      // setRefreshing(true);
+
+      const callbackOk = (json) => {
+        if (JSON.stringify(json) == "0") {
+          setDataResult("Ok");
+          setData([]);
+        } else {
+          setData(json);
+          setDataResult("");
+        }
+        setRefreshing(false);
+
+        //?Deconstrucción if empleado
+        // const {IDEmpleado, Empleado, Cargo, Unidad, Foto} = json[0];
+        // setIdEmpleado(IDEmpleado);
+        // SetEmpleado(Empleado);
+      }
+        
+      const callBackError = (error) => {
+        setRefreshing(false);
+        console.error(error);
+        messageError("revice su conexión a internet e inténtelo de nuevo");
+      }
+
+      const callBackStateLoaddingTrue = () => {
+        setLoading(true)
+      }
+      const callBackStateLoadingFalse = () => {
+        setLoading(false)
+      }
 
       Keyboard.dismiss();
 
@@ -82,53 +132,61 @@ export default function Busqueda({route}) {
         value = "Nombre";
       }
 
+      let url =  `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/${mod}.php?${value}=${text}`;
+
       if (text == "Buscar Expediente" || text == "") {
         Alert.alert("Escriba algo");
       } else {
-        NetInfo.fetch().then((state) => {
-          //* verificando estado de red
-          if (state.isConnected == true) {
-            setRefreshing(true);
 
-            // fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsestudiantes.php?IDExpediente=${text}`)
-            // fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsempleados.php?Nombre=${text}`)
-            fetch(
-              `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/${mod}.php?${value}=${text}`
-            )
-              .then((response) => response.json())
-              .then((json) => {
-                if (JSON.stringify(json) == "0") {
-                  setDataResult("Ok");
-                  setData([]);
-                } else {
-                  setData(json);
-                  setDataResult("");
-                }
-                setRefreshing(false);
 
-                //?Deconstrucción if empleado
-                // const {IDEmpleado, Empleado, Cargo, Unidad, Foto} = json[0];
-                // setIdEmpleado(IDEmpleado);
-                // SetEmpleado(Empleado);
-              })
-              .catch((error) => {
-                setRefreshing(false);
-                console.error(error);
-                showMessage({
-                  message: "ERROR",
-                  type: "danger",
-                  description:
-                    "Revise su conexión a internet e inténtelo de nuevo",
-                });
-              });
-          } else {
-            showMessage({
-              message: "ADVERTENCIA",
-              type: "warning",
-              description: "Parece que no tiene conexión a internet",
-            });
-          }
+        // setRefreshing(true);
+
+        // NetInfo.fetch().then((state) => {
+        //   //* verificando estado de red
+        //   if (state.isConnected == true) {
+
+        //     // setRefreshing(true);
+
+        //     // fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsestudiantes.php?IDExpediente=${text}`)
+        //     // fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsempleados.php?Nombre=${text}`)
+        //     fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/${mod}.php?${value}=${text}`)
+        //       .then((response) => response.json())
+        //       .then((json) => {
+        //         if (JSON.stringify(json) == "0") {
+        //           setDataResult("Ok");
+        //           setData([]);
+        //         } else {
+        //           setData(json);
+        //           setDataResult("");
+        //         }
+        //         setRefreshing(false);
+
+        //         //?Deconstrucción if empleado
+        //         // const {IDEmpleado, Empleado, Cargo, Unidad, Foto} = json[0];
+        //         // setIdEmpleado(IDEmpleado);
+        //         // SetEmpleado(Empleado);
+        //       })
+        //       .catch((error) => {
+        //         setRefreshing(false);
+        //         console.error(error);
+        //         messageError("Revise su conexión a internet e inténtelo de nuevo");
+        //       });
+        //   } else {
+        //     messageWarning("Parece que no tiene conexión a internet");
+        //     setRefreshing(false)
+        //   }
+        // });
+          
+        MyCustomFetch({
+          callbackOk, 
+          callBackError,
+          callBackStateLoaddingTrue,
+          callBackStateLoadingFalse,
+          url,
+          FetchPlace,
         });
+
+
       }
     };
 
@@ -224,6 +282,15 @@ export default function Busqueda({route}) {
         >
           <Text style={styles.textTouch}>Buscar</Text>
         </TouchableOpacity>
+
+        
+        { loading===true?
+          <View>
+             <ActivityIndicator/>
+          </View>
+        :
+        null
+        }
 
         {data == "" && dataResult == "Ok" ? (
           <View style={styles.content}>

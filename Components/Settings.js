@@ -5,18 +5,21 @@ import NetInfo from '@react-native-community/netinfo';
 import { showMessage } from "react-native-flash-message";
 import { Ionicons, Feather  } from "@expo/vector-icons";
 
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-  const Item = ({ item, onPress, backgroundColor, textColor }) => (
-    <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
-      <Text style={[styles.title, textColor]}>{item.IDEmpleado}</Text>
-    </TouchableOpacity>
-  );
 
+
+const Item = ({ item, onPress, backgroundColor, textColor }) => (
+  <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
+    <Text style={[styles.title, textColor]}>{item.Empleado}</Text>
+  </TouchableOpacity>
+);
+  
 
 export default function Settings() {
 
-  // const [data, setData] = useState([{id: 1, title: 'UTI'}, {id: 2, title: 'SECRETARÍA'}, {id: 3, title: 'BIBLIOTECA'},]);
+  const [DATA, setDATA] = useState([{IDEmpleado: 1, Empleado: 'UTI'}, {IDEmpleado: 2, Empleado: 'SECRETARÍA'}, {IDEmpleado: 3, Empleado: 'BIBLIOTECA'},]);
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(true)
   const [badConnection, setbadConnection] = useState(false)
@@ -39,16 +42,16 @@ export default function Settings() {
   
 
   //   Storing object value
-const storeData = async (value) => {
+  const storeData = async (value) => {
 
-  try {
-    const jsonValue = JSON.stringify(value)
-    await AsyncStorage.setItem('@storage_Key', jsonValue)
-  } catch (e) {
-    // saving error
-    console.log(e)
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.setItem('@storage_Key', jsonValue)
+    } catch (e) {
+      // saving error
+      console.log(e)
+    }
   }
-}
 
   // Reading object value
   const getData = async () => {
@@ -65,6 +68,12 @@ const storeData = async (value) => {
   const goSavingEffect = (value) => {
     setSelectedId(value)
     storeData(value)
+    showMessage({
+      message: "Información",
+      type: "success",
+      description: "¡Zona de trabajo guardada!",
+      position: "bottom",
+    });
   }
 
   const fetchData = () => { //todo: fetchData 
@@ -109,21 +118,21 @@ const storeData = async (value) => {
       });
   };
 
-    const renderItem = ({ item }) => {
+  const renderItem = ({ item }) => {
 
-        const backgroundColor = item.IDEmpleado === selectedId ? "#0084CA" : "#74D1EA"; // para el fondo
-        const color = item.IDEmpleado === selectedId ? 'white' : 'black'; // para el texto
-    
-        return (
-          <Item
-            item={item}
-            // onPress={() => setSelectedId(item.id)}
-            onPress={() => goSavingEffect(item.IDEmpleado)}
-            backgroundColor={{ backgroundColor }}
-            textColor={{ color }}
-          />
-        );
-      };
+      const backgroundColor = item.IDEmpleado === selectedId ? "skyblue" : null; // para el fondo
+      const color = item.IDEmpleado === selectedId ? 'white' : 'black'; // para el texto
+  
+      return (
+        <Item
+          item={item}
+          // onPress={() => setSelectedId(item.id)}
+          onPress={() => goSavingEffect(item.IDEmpleado)}
+          backgroundColor={{ backgroundColor }}
+          textColor={{ color }}
+        />
+      );
+  };
 
     const keyExtractor = useCallback((item)=>item.IDEmpleado.toString(), []);
     const ITEM_HEIGHT = 200;
@@ -135,64 +144,73 @@ const storeData = async (value) => {
     }),
     [] )
     
-      return (
-        <SafeAreaView style={styles.container}>
-        <View style = {styles.ViewDText}>
-          <Text style={styles.text}>Elija una zona de trabajo</Text>
-        </View>
-         {badConnection ==false? 
-            <FlatList
-              enableEmptySections={true}
-              data={data}
-              renderItem={renderItem}
-              keyExtractor={keyExtractor}
-              extraData={selectedId}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh.bind(this)}
-                />}
-            />
-           :
-           <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center',}}>
-            <Text style={styles.textNetwork}>En este momento no tiene conexión a internet.</Text>
-              <Feather name="wifi-off" size={45} color="gray" />
-           </View>
-           
-          }
-        </SafeAreaView>
-      );
-}
+    return (
+      <SafeAreaView style={styles.container}>
+      <View style = {styles.ViewDText}>
+        <Text style={styles.text}>Elija una zona de trabajo</Text>
+      </View>
+        {badConnection ==false? 
+          <FlatList
+            enableEmptySections={true}
+            data={DATA}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            extraData={selectedId}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh.bind(this)}
+              />}
+          />
+          :
+          <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center',}}>
+          <Text style={styles.textNetwork}>En este momento no tiene conexión a internet.</Text>
+            <Feather name="wifi-off" size={45} color="gray" />
+          </View>
+          
+        }
+      </SafeAreaView>
+    );
+ }
 
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: StatusBar.currentHeight || 0,
-    },
-    ViewDText:{
-      //  flex: 1,
-       justifyContent: 'center',
-       alignItems: 'center',
-       marginTop: 15,
-       marginBottom: 15,
-    },
-    text: {
+  const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        marginTop: StatusBar.currentHeight || 0,
+      },
+      ViewDText:{
+        //  flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 15,
+        marginBottom: 15,
+      },
+      text: {
+          fontSize: 20,
+
+      },
+      textNetwork:{
         fontSize: 20,
-
-    },
-    textNetwork:{
-      fontSize: 20,
-      color: 'gray',
-      paddingBottom: 16,
-      textAlign: 'center',
-      marginHorizontal: 15,
-    },
-    item: {
-      padding: 20,
-      marginVertical: 8,
-      marginHorizontal: 16,
-    },
-    title: {
-      fontSize: 32,
-    },
-  });
+        color: 'gray',
+        paddingBottom: 16,
+        textAlign: 'center',
+        marginHorizontal: 15,
+      },
+      item: {
+        // padding: 20,
+        // marginVertical: 8,
+        // marginHorizontal: 16,
+        paddingVertical: 25,
+        borderWidth: 1.3,
+        borderBottomWidth: 6,
+        borderLeftWidth: 5,
+        borderRadius: 20,
+        borderColor: 'skyblue',
+        marginHorizontal: 20,
+        marginVertical: 8,
+      },
+      title: {
+        fontSize: 18,
+        textAlign: 'center',
+      },
+    });

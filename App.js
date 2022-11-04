@@ -26,18 +26,24 @@ function App() {
           })}
         />
         <Stack.Screen 
-        name="Búsqueda" 
-        component={Busqueda} 
-        options={({navigation}) => ({
-            headerTitleAlign: "center",
-            headerRight: () => <IconSetting navigation={navigation} />
-          })} 
+          name="Búsqueda" 
+          component={Busqueda} 
+          options={({navigation}) => ({
+              headerTitleAlign: "center",
+              headerRight: () => <IconSetting navigation={navigation} />
+            })} 
         />
-        <Stack.Screen name="Perfil" component={Perfil} />
+        <Stack.Screen 
+          name="Perfil" 
+          component={Perfil} 
+          options={({navigation}) => ({
+              headerRight: () => <IconSetting navigation={navigation} />
+            })} 
+        />
         <Stack.Screen name="Configuración" component={Settings} />
         <Stack.Screen name="IconSetting" component={IconSetting} />
       </Stack.Navigator>
-      <FlashMessage position="bottom" />
+      <FlashMessage />
     </NavigationContainer>
   );
 }
