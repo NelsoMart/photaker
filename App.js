@@ -37,6 +37,7 @@ function App() {
           name="Perfil" 
           component={Perfil} 
           options={({navigation}) => ({
+            headerTitleAlign: "center",
               headerRight: () => <IconSetting navigation={navigation} />
             })} 
         />

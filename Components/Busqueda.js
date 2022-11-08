@@ -4,13 +4,14 @@ import React, { useEffect, useState, useCallback, useRef} from 'react';
 
 import { View, Text, StyleSheet, TouchableOpacity,TextInput, 
           Alert, RefreshControl, FlatList, ActivityIndicator} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import { Keyboard } from 'react-native'; 
 import LottieView from 'lottie-react-native';
 import NotFoundAnimation from '../LottieFiles/94729-not-found.json';
 import NetInfo from '@react-native-community/netinfo';
 
 import { showMessage } from "react-native-flash-message";
+// import { useIsFocused } from '@react-navigation/native';
 
 Keyboard.dismiss()
 
@@ -22,11 +23,14 @@ import useFetch from '../src/useFetch';
 // create a function
 export default function Busqueda({route}) {
 
+  // This hook returns `true` if the screen is focused, `false` otherwise
+  // const isFocused = useIsFocused();
+
 //* -------------- Deconstrucción de mis hooks ---------------
         const {
           messageError,
-          messageWarning,
-          messageSuccess
+          // messageWarning,
+          // messageSuccess
         } = DispachMessage();
 
         const {
@@ -60,12 +64,13 @@ export default function Busqueda({route}) {
     const navigation = useNavigation();
 
     useEffect(() => {
+
       // Subscribe to network state updates
       const unsubscribe = NetInfo.addEventListener((state) => {
         // setNetInfo(state.isConnected);
       });
 
-      onFocusHandler();
+      // onFocusHandler();
 
       if (Carnet == "Estudiante") {
         SetInputTtype("number-pad");
@@ -76,41 +81,36 @@ export default function Busqueda({route}) {
         // Unsubscribe to network state updates
         unsubscribe();
       };
-    }, [MyInputType, Carnet, text, refreshing, loading, onFocusHandler, inputRef]);
+    }, [MyInputType, Carnet, text, refreshing, loading, inputRef]);
+
 
     useEffect(() => {
-         onFocusHandler();
+
          const willFocusSubscription = navigation.addListener('focus', () => {
           onFocusHandler();
-        });
+          setTimeout(() => inputRef.current && inputRef.current.focus(), 100)
+        }
+        );
 
         return () => {
           // Unsubscribe to network state updates
           willFocusSubscription;
         };
-    }, [onFocusHandler, inputRef]);
+    }, [ inputRef]);
 
-
-    // const wait = (timeout) => {
-    //   return new Promise(resolve => setTimeout(resolve, timeout));
-    // }
 
     const onRefresh = () => {
       //Clear old data of the list
       setData([])
-      // setRefreshing(true)
-      //Call the Service to get the latest data
       fetchData()
     }
-
-
 
     const FetchPlace = "LikeGet";
 
     const fetchData = () => {
       // 26396 topnumexp
+      Keyboard.dismiss();
 
-      // setRefreshing(true);
       setLoading(true);
 
       const callbackOk = (json) => {
@@ -147,8 +147,6 @@ export default function Busqueda({route}) {
         setLoading(false)
       }
 
-      Keyboard.dismiss();
-
       let mod = "";
       let value = "";
 
@@ -166,45 +164,6 @@ export default function Busqueda({route}) {
         Alert.alert("", "Escriba algo");
         setLoading(false)
       } else {
-
-        // setRefreshing(true);
-
-        // NetInfo.fetch().then((state) => {
-        //   //* verificando estado de red
-        //   if (state.isConnected == true) {
-
-        //     // setRefreshing(true);
-
-        //     // fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsestudiantes.php?IDExpediente=${text}`)
-        //     // fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsempleados.php?Nombre=${text}`)
-        //     fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/${mod}.php?${value}=${text}`)
-        //       .then((response) => response.json())
-        //       .then((json) => {
-        //         if (JSON.stringify(json) == "0") {
-        //           setDataResult("Ok");
-        //           setData([]);
-        //         } else {
-        //           setData(json);
-        //           setDataResult("");
-        //         }
-        //         setRefreshing(false);
-
-        //         //?Deconstrucción if empleado
-        //         // const {IDEmpleado, Empleado, Cargo, Unidad, Foto} = json[0];
-        //         // setIdEmpleado(IDEmpleado);
-        //         // SetEmpleado(Empleado);
-        //       })
-        //       .catch((error) => {
-        //         setRefreshing(false);
-        //         console.error(error);
-        //         messageError("Revise su conexión a internet e inténtelo de nuevo");
-        //       });
-        //   } else {
-        //     messageWarning("Parece que no tiene conexión a internet");
-        //     setRefreshing(false)
-        //   }
-        // });
-          
         MyCustomFetch({
           callbackOk, 
           callBackError,
@@ -213,12 +172,12 @@ export default function Busqueda({route}) {
           url,
           FetchPlace,
         });
-
-
       }
     };
 
     let GoingToProfil = (item) => {
+
+      Keyboard.dismiss()
 
       //* Reseteando, para que al volver atrás, se tenga que buscar de nuevo, y así refresque la foto
       setData([]); 
@@ -288,10 +247,12 @@ export default function Busqueda({route}) {
         {/* <Image source={require('../assets/logo_uso.jpeg')} style={styles.imageSt}/> */}
         <View style={{flexDirection: 'row',}}>
         <Text>Búsqueda de Usuario:</Text>
+        {/* <Text>{isFocused ? 'focused' : 'unfocused'}</Text> */}
         <Text style={{color:Carnet=="Estudiante"?'#2EA1F0':'tomato'}}> { Carnet }</Text>
         </View>
         <TextInput 
           keyboardType={MyInputType}
+          autoFocus={true}
           style={styles.input}
           onChangeText={onChangeText}
           ref={inputRef}

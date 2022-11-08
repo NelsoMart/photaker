@@ -1,5 +1,6 @@
 import { View, Text, Image, StyleSheet,Button, 
-           TouchableOpacity, ScrollView, Alert } from 'react-native'
+           TouchableOpacity, ScrollView, Alert } from 'react-native';
+
 import React, {useState, useEffect} from 'react';
 
 import { Ionicons } from '@expo/vector-icons'; 
@@ -8,7 +9,8 @@ import { Ionicons } from '@expo/vector-icons';
 import DispachMessage from '../src/useFlashMessage';
 import useFetch from '../src/useFetch';
 
-import * as Network from 'expo-network';
+// import * as Network from 'expo-network';
+
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -479,12 +481,12 @@ import {useNavigation} from '@react-navigation/native';
       marginTop: 20,
     },
     imageProfil: {
-      width: 200,
+      width: 150,
       height: 200,
       borderRadius: 15,
       borderColor: "lightgray",
       borderWidth: 1,
-      resizeMode: "contain",
+      resizeMode: "cover",
       marginTop: 15,
     },
     imageDefault:{

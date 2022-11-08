@@ -19,7 +19,7 @@ const Item = ({ item, onPress, borderColor, textColor }) => (
 
 export default function Settings() {
 
-  const [DATA, setDATA] = useState([{workzoneId: 1, Empleado: 'UTI'}, {workzoneId: 2, Empleado: 'SECRETARÍA'}, {workzoneId: 3, Empleado: 'BIBLIOTECA'},]);
+  // const [DATA, setDATA] = useState([{workzoneId: 1, Empleado: 'UTI'}, {workzoneId: 2, Empleado: 'SECRETARÍA'}, {workzoneId: 3, Empleado: 'BIBLIOTECA'},]);
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(true)
   const [badConnection, setbadConnection] = useState(false) // Para decidir colocar el icono indicativo de mala conexión
@@ -36,11 +36,11 @@ export default function Settings() {
  //* -----------------------------------------------------------
 
   useEffect(() => {
-      getData();
-      fetchData();
+      getData(); // obteniendo los datos de asyncstorage
+      fetchData(); // obteniendo los datos de fetch
   },[]) 
 
-  const onRefresh = () => {
+  const onRefresh = () => { // refrescando FlatList
     //Clear old data of the list
     setData([])
     setRefreshing(true)
@@ -95,7 +95,7 @@ export default function Settings() {
     
   const callBackError = (error) => {
       setRefreshing(false);
-      // console.error(error);      
+      console.error(error);      
       messageError("revice su conexión a internet e inténtelo de nuevo");
   }
 
@@ -114,49 +114,6 @@ export default function Settings() {
   const FetchPlace = "LikeGet";
 
   const fetchData = () => { //todo: fetchData 
-
-    // console.log('badConnection: ', JSON.stringify(badConnection))
-
-      // NetInfo.fetch().then((state) => {
-      //     //* verificando estado de red
-      //     if (state.isConnected == true) {
-      //     setRefreshing(true);
-      //     setbadConnection(false)
-
-      //     fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsworkzone.php`)
-      //         .then((response) => response.json())
-      //         .then((json) => {
-      //         if (JSON.stringify(json) == "0") 
-      //         {
-      //             setData([]);
-      //         } 
-      //         else 
-      //         {
-      //             setData(json);
-      //             console.log(data)
-      //         } 
-      //         setRefreshing(false);
-      //         })
-      //         .catch((error) => {
-      //         setRefreshing(false);
-      //         console.error(error);
-      //         showMessage({
-      //             message: "ERROR",
-      //             type: "danger",
-      //             description:"Revise su conexión a internet e inténtelo de nuevo",
-      //             titleStyle: {paddingTop: 30}
-      //         });
-      //         });
-      //     } else {
-      //       setRefreshing(false)
-      //       setbadConnection(true)
-      //       showMessage({
-      //           message: "ERROR",
-      //           type: "danger",
-      //           description: "Parece que no tiene conexión a internet",
-      //       });
-      //     }
-      // });
 
       let url =  `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsworkzone.php`;
 
