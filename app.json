@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "phototaker",
+    "name": "USO IDCard",
     "slug": "phototaker",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,7 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "sv.edu.usonsonate.phototaker",
+      "package": "sv.edu.usonsonate.usoidcard",
       "versionCode": 18,
       "permissions": [
         "WRITE_EXTERNAL_STORAGE",

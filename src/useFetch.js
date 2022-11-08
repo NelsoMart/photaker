@@ -35,7 +35,7 @@ const useFetch = () => {
               callBackStateLoaddingTrue(); 
 
               fetch(url, options)
-              .then((response) => FetchPlace == "Busqueda"?response.json():response.text() )
+              .then((response) => FetchPlace == "LikeGet"?response.json():response.text())
               .then((json) => {
                 callbackOk(json)
               })

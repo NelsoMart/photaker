@@ -22,16 +22,16 @@ import useFetch from '../src/useFetch';
 // create a function
 export default function Busqueda({route}) {
 
-  //* -------------- Deconstrucción de mis hooks ---------------
-  const {
-    messageError,
-    messageWarning,
-    messageSuccess
-} = DispachMessage();
+//* -------------- Deconstrucción de mis hooks ---------------
+        const {
+          messageError,
+          messageWarning,
+          messageSuccess
+        } = DispachMessage();
 
-const {
-MyCustomFetch,
-} = useFetch();
+        const {
+            MyCustomFetch,
+        } = useFetch();
 //* -----------------------------------------------------------
 
   const {Carnet} = route.params
@@ -55,6 +55,8 @@ MyCustomFetch,
     inputRef.current && inputRef.current.focus();
     }
 
+    setTimeout(() => inputRef.current && inputRef.current.focus(), 100)
+
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -62,7 +64,9 @@ MyCustomFetch,
       const unsubscribe = NetInfo.addEventListener((state) => {
         // setNetInfo(state.isConnected);
       });
+
       onFocusHandler();
+
       if (Carnet == "Estudiante") {
         SetInputTtype("number-pad");
       } else {
@@ -72,12 +76,24 @@ MyCustomFetch,
         // Unsubscribe to network state updates
         unsubscribe();
       };
-    }, [MyInputType, Carnet, text, refreshing, loading]);
+    }, [MyInputType, Carnet, text, refreshing, loading, onFocusHandler, inputRef]);
+
+    useEffect(() => {
+         onFocusHandler();
+         const willFocusSubscription = navigation.addListener('focus', () => {
+          onFocusHandler();
+        });
+
+        return () => {
+          // Unsubscribe to network state updates
+          willFocusSubscription;
+        };
+    }, [onFocusHandler, inputRef]);
 
 
-    const wait = (timeout) => {
-      return new Promise(resolve => setTimeout(resolve, timeout));
-    }
+    // const wait = (timeout) => {
+    //   return new Promise(resolve => setTimeout(resolve, timeout));
+    // }
 
     const onRefresh = () => {
       //Clear old data of the list
@@ -89,7 +105,7 @@ MyCustomFetch,
 
 
 
-    const FetchPlace = "Busqueda";
+    const FetchPlace = "LikeGet";
 
     const fetchData = () => {
       // 26396 topnumexp
@@ -147,7 +163,8 @@ MyCustomFetch,
       let url =  `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/${mod}.php?${value}=${text}`;
 
       if (text == "Buscar Expediente" || text == "") {
-        Alert.alert("Escriba algo");
+        Alert.alert("", "Escriba algo");
+        setLoading(false)
       } else {
 
         // setRefreshing(true);

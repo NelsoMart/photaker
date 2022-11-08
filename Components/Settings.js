@@ -4,28 +4,36 @@ import { StyleSheet, Text, View, FlatList, StatusBar, RefreshControl,
 import NetInfo from '@react-native-community/netinfo';
 import { showMessage } from "react-native-flash-message";
 import { Ionicons, Feather  } from "@expo/vector-icons";
-
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import DispachMessage from '../src/useFlashMessage';
+import useFetch from '../src/useFetch';
 
 
-const Item = ({ item, onPress, backgroundColor, textColor }) => (
-  <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
-    <Text style={[styles.title, textColor]}>{item.Empleado}</Text>
+const Item = ({ item, onPress, borderColor, textColor }) => (
+  <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={[styles.item, borderColor]}>
+    <Text style={[styles.title, textColor]}>{item.zona}</Text>
   </TouchableOpacity>
 );
   
 
 export default function Settings() {
 
-  const [DATA, setDATA] = useState([{IDEmpleado: 1, Empleado: 'UTI'}, {IDEmpleado: 2, Empleado: 'SECRETARÍA'}, {IDEmpleado: 3, Empleado: 'BIBLIOTECA'},]);
+  const [DATA, setDATA] = useState([{workzoneId: 1, Empleado: 'UTI'}, {workzoneId: 2, Empleado: 'SECRETARÍA'}, {workzoneId: 3, Empleado: 'BIBLIOTECA'},]);
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(true)
-  const [badConnection, setbadConnection] = useState(false)
+  const [badConnection, setbadConnection] = useState(false) // Para decidir colocar el icono indicativo de mala conexión
   // const [dataResult, setDataResult] = useState('')
   const [selectedId, setSelectedId] = useState(null); // colocar 1 para dejar listo 
 
+  //* -------------- Deconstrucción de mis hooks ---------------
+    const {
+          messageError,
+    }=DispachMessage();
+    const {
+          MyCustomFetch,
+    }=useFetch();
+ //* -----------------------------------------------------------
 
   useEffect(() => {
       getData();
@@ -40,7 +48,6 @@ export default function Settings() {
     fetchData()
   }
   
-
   //   Storing object value
   const storeData = async (value) => {
 
@@ -53,7 +60,7 @@ export default function Settings() {
     }
   }
 
-  // Reading object value
+  // Reading object asyncstorage value
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@storage_Key')
@@ -76,65 +83,110 @@ export default function Settings() {
     });
   }
 
-  const fetchData = () => { //todo: fetchData 
-      NetInfo.fetch().then((state) => {
-          //* verificando estado de red
-          if (state.isConnected == true) {
-          setRefreshing(true);
-          setbadConnection(false)
+  const callbackOk = (json) => {
+    if (JSON.stringify(json) == "0") {
+      setData([]);
+    } else {
+      setData(json);
+      // console.log(data);
+    }
+    setRefreshing(false);
+  };
+    
+  const callBackError = (error) => {
+      setRefreshing(false);
+      // console.error(error);      
+      messageError("revice su conexión a internet e inténtelo de nuevo");
+  }
 
-          fetch( `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsempleados.php?Nombre=Mar`)
-              .then((response) => response.json())
-              .then((json) => {
-              if (JSON.stringify(json) == "0") 
-              {
-                  setData([]);
-              } 
-              else 
-              {
-                  setData(json);
-              }
-              setRefreshing(false);
-              })
-              .catch((error) => {
-              setRefreshing(false);
-              console.error(error);
-              showMessage({
-                  message: "ERROR",
-                  type: "danger",
-                  description:
-                  "Revise su conexión a internet e inténtelo de nuevo",
-              });
-              });
-          } else {
-            setRefreshing(false)
-            setbadConnection(true)
-            showMessage({
-                message: "ERROR",
-                type: "danger",
-                description: "Parece que no tiene conexión a internet",
-            });
-          }
+  const callBackStateLoaddingTrue = () => {
+    // setRefreshing(true)
+    setRefreshing(true)
+    setbadConnection(false)
+    
+  }
+  const callBackStateLoadingFalse = () => {
+    // setRefreshing(false)
+    setRefreshing(false)
+    setbadConnection(true)
+  }
+
+  const FetchPlace = "LikeGet";
+
+  const fetchData = () => { //todo: fetchData 
+
+    // console.log('badConnection: ', JSON.stringify(badConnection))
+
+      // NetInfo.fetch().then((state) => {
+      //     //* verificando estado de red
+      //     if (state.isConnected == true) {
+      //     setRefreshing(true);
+      //     setbadConnection(false)
+
+      //     fetch(`https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsworkzone.php`)
+      //         .then((response) => response.json())
+      //         .then((json) => {
+      //         if (JSON.stringify(json) == "0") 
+      //         {
+      //             setData([]);
+      //         } 
+      //         else 
+      //         {
+      //             setData(json);
+      //             console.log(data)
+      //         } 
+      //         setRefreshing(false);
+      //         })
+      //         .catch((error) => {
+      //         setRefreshing(false);
+      //         console.error(error);
+      //         showMessage({
+      //             message: "ERROR",
+      //             type: "danger",
+      //             description:"Revise su conexión a internet e inténtelo de nuevo",
+      //             titleStyle: {paddingTop: 30}
+      //         });
+      //         });
+      //     } else {
+      //       setRefreshing(false)
+      //       setbadConnection(true)
+      //       showMessage({
+      //           message: "ERROR",
+      //           type: "danger",
+      //           description: "Parece que no tiene conexión a internet",
+      //       });
+      //     }
+      // });
+
+      let url =  `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsworkzone.php`;
+
+      MyCustomFetch({
+        callbackOk, 
+        callBackError,
+        callBackStateLoaddingTrue,
+        callBackStateLoadingFalse,
+        url,
+        FetchPlace,
       });
   };
 
   const renderItem = ({ item }) => {
 
-      const backgroundColor = item.IDEmpleado === selectedId ? "skyblue" : null; // para el fondo
-      const color = item.IDEmpleado === selectedId ? 'white' : 'black'; // para el texto
+      const borderColor = item.workzoneId === selectedId ? "skyblue" : "lightgray"; // para el fondo
+      const color = item.workzoneId === selectedId ? '#49B0E3' : '#1F1F1F'; // para el texto
   
       return (
         <Item
           item={item}
           // onPress={() => setSelectedId(item.id)}
-          onPress={() => goSavingEffect(item.IDEmpleado)}
-          backgroundColor={{ backgroundColor }}
+          onPress={() => goSavingEffect(item.workzoneId)}
+          borderColor={{ borderColor }}
           textColor={{ color }}
         />
       );
   };
 
-    const keyExtractor = useCallback((item)=>item.IDEmpleado.toString(), []);
+    const keyExtractor = useCallback((item)=>item.workzoneId.toString(), []);
     const ITEM_HEIGHT = 200;
     const getItemLayout = useCallback(
     (data, index) => ({
@@ -152,7 +204,7 @@ export default function Settings() {
         {badConnection ==false? 
           <FlatList
             enableEmptySections={true}
-            data={DATA}
+            data={data}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             extraData={selectedId}
@@ -183,10 +235,11 @@ export default function Settings() {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 15,
-        marginBottom: 15,
+        marginBottom: 20,
       },
       text: {
           fontSize: 20,
+          fontWeight: 'bold',
 
       },
       textNetwork:{
@@ -205,7 +258,7 @@ export default function Settings() {
         borderBottomWidth: 6,
         borderLeftWidth: 5,
         borderRadius: 20,
-        borderColor: 'skyblue',
+        // borderColor: 'lightgray',
         marginHorizontal: 20,
         marginVertical: 8,
       },

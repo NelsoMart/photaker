@@ -1,9 +1,9 @@
 import { View, Text, Image, StyleSheet,Button, 
            TouchableOpacity, ScrollView, Alert } from 'react-native'
 import React, {useState, useEffect} from 'react';
-import * as ImagePicker from 'expo-image-picker';
+
 import { Ionicons } from '@expo/vector-icons'; 
-import { Camera } from 'expo-camera';
+
 
 import DispachMessage from '../src/useFlashMessage';
 import useFetch from '../src/useFetch';
@@ -12,8 +12,12 @@ import * as Network from 'expo-network';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
+//media
+import { Camera } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+//save in galery
 import * as MediaLibrary from 'expo-media-library';
+
 // import * as Permissions from 'expo-permissions'; // ver estp luego
 
 // import ImgToBase64 from 'react-native-image-base64';
@@ -59,10 +63,10 @@ import {useNavigation} from '@react-navigation/native';
 
 
       useEffect(() => {
-
         // focus to auto calling function
         const willFocusSubscription = navigation.addListener('focus', () => {
           getData();  
+          // alert(JSON.stringify(Foto))
         });
 
         // Subscribe to network state updates
@@ -74,7 +78,6 @@ import {useNavigation} from '@react-navigation/native';
 
         getData();
         // clearData();
-
         return () => {
           // Unsubscribe to network state updates
           unsubscribe();
@@ -83,7 +86,7 @@ import {useNavigation} from '@react-navigation/native';
       }, []);
 
       async function clearData(){
-        // await AsyncStorage.clear();
+        await AsyncStorage.clear();
         getData();
       }
 
@@ -107,7 +110,7 @@ import {useNavigation} from '@react-navigation/native';
         setLoading(false)
       }
 
-      const FetchPlace = "Perfil";
+      const FetchPlace = "LikePost";
 
       const fetchSentCarnet = () =>{ //todo:FETCH de Impresión
 
@@ -133,7 +136,7 @@ import {useNavigation} from '@react-navigation/native';
         const formData = new FormData();
         formData.append("IDPersona", IDCarnet) //? Podría contener  el ID ya sea de empleado o de estudiante
         formData.append("Salida", Carnet.toUpperCase()) //? El texto debe ser en mayúsculas, porque así se recibe en el lado del servidor
-        // formData.append("Departamento", selectedId) //? para el tipo de partamento, que puede ser UTI, Biblioteca, Contadiría, ...
+        formData.append("WorkzoneId", selectedId) //? para el tipo de partamento, que puede ser UTI, Biblioteca, Contadiría, ...
 
         let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/registrarencolaimpresion.php`
 
@@ -216,9 +219,6 @@ import {useNavigation} from '@react-navigation/native';
         }
       }
 
-
-      
-
       const fetch_updating = async () => { //todo: FETCH updating photo
 
         const callbackOk = (json) => {
@@ -274,14 +274,12 @@ import {useNavigation} from '@react-navigation/native';
 
         const imagePermission = await ImagePicker.getMediaLibraryPermissionsAsync();
         // console.log(imagePermission.status);
-
         setGalleryPermission(imagePermission.status === 'granted');
-
         if (
           imagePermission.status !== 'granted' &&
           cameraPermission.status !== 'granted'
         ) {
-          Alert.alert('Permission for media access needed.');
+          Alert.alert('Se necesita permiso para acceder a los medios.');
           setMisPermisos(false)
         }
         else
@@ -290,14 +288,12 @@ import {useNavigation} from '@react-navigation/native';
           setSelectedImage(null)
           
         }
-        
-
       }
 
       const takePicture = async () => {
         if (camera) {
           let data = await camera.takePictureAsync({
-            aspect: [3, 4],
+            aspect: [4, 4], // 4,4 mantienen el el formato ideal
             quality: 0.5,
             base64: true
           });
@@ -310,6 +306,9 @@ import {useNavigation} from '@react-navigation/native';
       };
 
       const OpeningGalery = async () => {
+
+        console.log("Async Value: ", selectedId);
+
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
           allowsEditing: true,
@@ -329,12 +328,13 @@ import {useNavigation} from '@react-navigation/native';
         // setSelectedImage(null);
         setSelectedImage(pickerResult.uri);
         setPrint(false); // para ocultar el botón de impresión
+        
       };
 
       async function savePicture(){
         const asset = await MediaLibrary.createAssetAsync(selectedImage)
         .then( ()=>{
-          alert('Fotografia guardada')
+          alert('Fotografía guardada')
         })
         .catch( error=> {
           console.log('err', error);
@@ -349,7 +349,9 @@ import {useNavigation} from '@react-navigation/native';
                 ref={(ref) => setCamera(ref)}
                 style={styles.fixedRatio}
                 type={type}
-                ratio={"1:1"}
+                ratio={"2:2"}
+                // useCamera2Api={true}
+                // ratio={"1,1"}
               />
             </View>
             <TouchableOpacity
@@ -431,7 +433,15 @@ import {useNavigation} from '@react-navigation/native';
             />
         <Text style={styles.Paramstext}>{Nombre}</Text>
         <Text style={styles.Paramstext}>{Description}</Text>
-          <Image style={styles.imageProfil} source={{uri: `data:image/gif;base64,${Foto}`}} />
+          { JSON.stringify(Foto)!='""'?
+            <Image style={styles.imageProfil} 
+                   source={{uri: `data:image/gif;base64,${Foto}`}} 
+             />
+             :
+            <Image style={[styles.imageProfil, styles.imageDefault]} 
+                   source={require('../assets/persona.png')} 
+             />
+          }
           <View style={styles.contentTouch}>
             <TouchableOpacity onPress={OpeningCamera} style={styles.touchFoto}>
               <Text style={styles.buttonText}>
@@ -476,6 +486,10 @@ import {useNavigation} from '@react-navigation/native';
       borderWidth: 1,
       resizeMode: "contain",
       marginTop: 15,
+    },
+    imageDefault:{
+      tintColor: 'lightgray',
+      borderColor: 'lightgray'
     },
     contentTouch: {
       flex: 1,

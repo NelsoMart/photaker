@@ -23,6 +23,7 @@ const DispachMessage = () => {
             type: "warning",
             description: description,
             position: "bottom",
+            titleStyle: {paddingBottom: 5}
           });
     }
 
@@ -32,8 +33,8 @@ const DispachMessage = () => {
             type: "success",
             description: description,
             position: "bottom",
-            // titleStyle: {paddingTop: 40}
-          });
+            titleStyle: {paddingBottom: 5}
+        });
     }
 
     return {
