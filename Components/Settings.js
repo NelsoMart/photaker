@@ -23,12 +23,12 @@ export default function Settings() {
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(true)
   const [badConnection, setbadConnection] = useState(false) // Para decidir colocar el icono indicativo de mala conexión
-  // const [dataResult, setDataResult] = useState('')
   const [selectedId, setSelectedId] = useState(null); // colocar 1 para dejar listo 
 
-  //* -------------- Deconstrucción de mis hooks ---------------
+  //* --------------  Custom Hooks Deconstruction ---------------
     const {
           messageError,
+          messageSuccess,
     }=DispachMessage();
     const {
           MyCustomFetch,
@@ -36,11 +36,11 @@ export default function Settings() {
  //* -----------------------------------------------------------
 
   useEffect(() => {
-      getData(); // obteniendo los datos de asyncstorage
-      fetchData(); // obteniendo los datos de fetch
+      getData(); // getting asyncstorage data
+      fetchData(); // getting fetch data
   },[]) 
 
-  const onRefresh = () => { // refrescando FlatList
+  const onRefresh = () => { // refreshing FlatList
     //Clear old data of the list
     setData([])
     setRefreshing(true)
@@ -75,12 +75,7 @@ export default function Settings() {
   const goSavingEffect = (value) => {
     setSelectedId(value)
     storeData(value)
-    showMessage({
-      message: "Información",
-      type: "success",
-      description: "¡Zona de trabajo guardada!",
-      position: "bottom",
-    });
+    messageSuccess("¡Zona de trabajo guardada!")
   }
 
   const callbackOk = (json) => {
@@ -100,13 +95,11 @@ export default function Settings() {
   }
 
   const callBackStateLoaddingTrue = () => {
-    // setRefreshing(true)
     setRefreshing(true)
     setbadConnection(false)
     
   }
   const callBackStateLoadingFalse = () => {
-    // setRefreshing(false)
     setRefreshing(false)
     setbadConnection(true)
   }
@@ -188,7 +181,6 @@ export default function Settings() {
         marginTop: StatusBar.currentHeight || 0,
       },
       ViewDText:{
-        //  flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 15,
@@ -207,15 +199,11 @@ export default function Settings() {
         marginHorizontal: 15,
       },
       item: {
-        // padding: 20,
-        // marginVertical: 8,
-        // marginHorizontal: 16,
         paddingVertical: 25,
         borderWidth: 1.3,
         borderBottomWidth: 6,
         borderLeftWidth: 5,
         borderRadius: 20,
-        // borderColor: 'lightgray',
         marginHorizontal: 20,
         marginVertical: 8,
       },

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 import React from "react";
-import {useNavigation, useScrollToTop} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 
 export default function Home() {
@@ -57,9 +57,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   principal: {
-    // flexDirection: "row",
     flex: 1,
-    // justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
@@ -73,7 +71,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginTop: '1%',
     marginBottom: '15%'
-    // borderWidth: 1,
   },
   touchStyle:{
     paddingVertical: 40,
@@ -85,9 +82,6 @@ const styles = StyleSheet.create({
   },
   viewTouch: {
       marginVertical: 10,
-      // paddingHorizontal: 30,
-      // borderColor: 'red',
-      // borderWidth: 1,
   },
   textTouch:{
      color: 'black',

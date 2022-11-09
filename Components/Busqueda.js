@@ -248,7 +248,7 @@ export default function Busqueda({route}) {
         <View style={{flexDirection: 'row',}}>
         <Text>Búsqueda de Usuario:</Text>
         {/* <Text>{isFocused ? 'focused' : 'unfocused'}</Text> */}
-        <Text style={{color:Carnet=="Estudiante"?'#2EA1F0':'tomato'}}> { Carnet }</Text>
+        <Text style={{color:Carnet=="Estudiante"?'#2EA1F0':'#28B463'}}> { Carnet }</Text>
         </View>
         <TextInput 
           keyboardType={MyInputType}

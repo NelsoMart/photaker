@@ -29,6 +29,7 @@ import fetchDatos from './fetchDatos';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import {useNavigation} from '@react-navigation/native'; 
+import { getHeaderTitle } from '@react-navigation/elements';
 
   export default function Perfil({route}) {
 
@@ -45,6 +46,8 @@ import {useNavigation} from '@react-navigation/native';
     //* -----------------------------------------------------------
 
       const navigation = useNavigation();
+
+      
 
       //datos del carnet
       const {IDCarnet, Nombre, Description, Foto, Carnet} = route.params
@@ -71,23 +74,30 @@ import {useNavigation} from '@react-navigation/native';
           // alert(JSON.stringify(Foto))
         });
 
-        // Subscribe to network state updates
+        //* Subscribe to network state updates
         const unsubscribe = NetInfo.addEventListener((state) => {
           setNetInfo(
             state.isConnected
           );
         });
 
+        navigation.setOptions({ //* no debe estar fuera de useEffect
+          //* nombre del status bar
+          title: `Perfil de ${Carnet}`,
+        });
+
         getData();
         // clearData();
+
         return () => {
-          // Unsubscribe to network state updates
+          //* Unsubscribe to network state updates
           unsubscribe();
           willFocusSubscription;
         };
-      }, []);
 
-      async function clearData(){
+      }, [Carnet]);
+
+      async function clearData(){ //* clean AsyncStorage value
         await AsyncStorage.clear();
         getData();
       }
@@ -266,9 +276,8 @@ import {useNavigation} from '@react-navigation/native';
 
       };
 
-      const OpeningCamera = async () => { //? Permisos de cámera
-      // navigation.navigate('Open Camera')
-        //here is how you can get the camera permission
+      const OpeningCamera = async () => { //? Camera permissions
+        //here is how we can get the camera permission
 
         const cameraPermission = await Camera.requestCameraPermissionsAsync();
           
@@ -333,6 +342,10 @@ import {useNavigation} from '@react-navigation/native';
         
       };
 
+      const MyColorTextDescription = () => {
+        return { color: Carnet == "Estudiante" ? "#2EA1F0" : "#28B463" };
+      };
+
       async function savePicture(){
         const asset = await MediaLibrary.createAssetAsync(selectedImage)
         .then( ()=>{
@@ -390,14 +403,14 @@ import {useNavigation} from '@react-navigation/native';
               textStyle={styles.spinnerTextStyle}
             />
 
-            <Text style={styles.Paramstext}>{Nombre}</Text>
-            <Text style={styles.Paramstext}>{Description}</Text>
+            <Text style={styles.ParamstextName}>{Nombre}</Text>
+            <Text style={[styles.ParamstextDescription, MyColorTextDescription()]}>{Description}</Text>
 
             <Image style={styles.imageProfil} source={{ uri: selectedImage }} />
 
             {/* <TouchableOpacity style={[styles.btnApp, {right:20} ]} onPress={ ()=> savePicture() }>
-                <Ionicons name="checkmark-sharp" size={50} color="green" />
-          </TouchableOpacity> */}
+                  <Ionicons name="checkmark-sharp" size={50} color="green" />
+                </TouchableOpacity> */}
 
             <View style={styles.contentTouch}>
               <TouchableOpacity onPress={OpeningCamera} style={styles.touchFoto}>
@@ -433,8 +446,8 @@ import {useNavigation} from '@react-navigation/native';
               textContent={"Cargando..."}
               textStyle={styles.spinnerTextStyle}
             />
-        <Text style={styles.Paramstext}>{Nombre}</Text>
-        <Text style={styles.Paramstext}>{Description}</Text>
+        <Text style={styles.ParamstextName}>{Nombre}</Text>
+        <Text style={[styles.ParamstextDescription, MyColorTextDescription()]}>{Description}</Text>
           { JSON.stringify(Foto)!='""'?
             <Image style={styles.imageProfil} 
                    source={{uri: `data:image/gif;base64,${Foto}`}} 
@@ -477,8 +490,16 @@ import {useNavigation} from '@react-navigation/native';
       alignItems: "center",
       alignContent: "center",
     },
-    Paramstext: {
+    ParamstextName: {
       marginTop: 20,
+      fontWeight: '500',
+      fontSize: 16
+
+    },
+    ParamstextDescription: {
+      marginTop: 7,
+      marginBottom: 10,
+      fontWeight: '400'
     },
     imageProfil: {
       width: 150,

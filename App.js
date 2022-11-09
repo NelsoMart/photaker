@@ -34,9 +34,13 @@ function App() {
             })} 
         />
         <Stack.Screen 
-          name="Perfil" 
-          component={Perfil} 
+          name="Perfil"
+          component={Perfil}
+         
           options={({navigation}) => ({
+            headerTitleStyle:{
+              color: '#2F4B51'
+            },
             headerTitleAlign: "center",
               headerRight: () => <IconSetting navigation={navigation} />
             })} 
