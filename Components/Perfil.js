@@ -19,6 +19,8 @@ import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 //save in galery
 import * as MediaLibrary from 'expo-media-library';
+import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
+
 
 // import * as Permissions from 'expo-permissions'; // ver estp luego
 
@@ -42,13 +44,12 @@ import { getHeaderTitle } from '@react-navigation/elements';
 
     const {
       MyCustomFetch,
+      MyCustomFetch2
     } = useFetch();
     //* -----------------------------------------------------------
 
       const navigation = useNavigation();
-
       
-
       //datos del carnet
       const {IDCarnet, Nombre, Description, Foto, Carnet} = route.params
 
@@ -95,15 +96,15 @@ import { getHeaderTitle } from '@react-navigation/elements';
           willFocusSubscription;
         };
 
-      }, [Carnet]);
+      }, [Carnet, printOk]);
 
       async function clearData(){ //* clean AsyncStorage value
         await AsyncStorage.clear();
         getData();
       }
 
-      //todo: Reading object value from asynstorage
-      const getData = async () => {
+      //? Reading object value from asynstorage
+      const getData = async () => { // determinando zona de trabajo
         try {
           const jsonValue = await AsyncStorage.getItem('@storage_Key')
           return jsonValue != null ? setSelectedId(JSON.parse(jsonValue)) : null;
@@ -122,16 +123,56 @@ import { getHeaderTitle } from '@react-navigation/elements';
         setLoading(false)
       }
 
-      const FetchPlace = "LikePost";
+      const FetchPlace = "LikeGET";
 
-      const fetchSentCarnet = () =>{ //todo:FETCH de Impresión
+      const fetchConsultColaImpresion = () => {//todo: FETCH consulta de impresión
+
+        const callbackOk = (json) => {
+          console.log('Log de Consulta Cola de Impresion ' + json);
+          if (JSON.stringify(json) == '0') {
+            // messageSuccess("es cero, No hay petición");
+            // alert("es cero")
+            fetchSentCarnet();
+          } 
+          else {
+            // messageWarning("NO es cero, Ya hay petición enviada");
+            // setPrint(true);
+            // alert("no es cero")
+            
+            printingCarnet();
+            setPrintOk(true);
+
+          }
+          setLoading(false);
+        }
+          
+        const callBackError = (error) => {
+          console.error(error);
+          setLoading(false);
+          messageError("revice su conexión a internet e inténtelo de nuevo");
+        }
+
+        let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsconsultarcolaimpresion.php?IDPersona=${IDCarnet}`
+
+        MyCustomFetch2({
+          callbackOk, 
+          callBackError,
+          callBackStateLoaddingTrue,
+          callBackStateLoadingFalse,
+          url,
+        });
+
+
+      }
+
+      const fetchSentCarnet = () =>{//todo:FETCH de Impresión
 
         const callbackOk = (json) => {
           console.log(json);
           if (JSON.stringify(json) == '"1"') {
             messageSuccess("¡Su petición de impresión ha sido enviada!");
             setPrint(true);
-            setPrintOk(true);
+            // setPrintOk(true);
           } 
           else {
             messageError("Su petición de impresión no fue enviada");
@@ -152,42 +193,6 @@ import { getHeaderTitle } from '@react-navigation/elements';
 
         let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/registrarencolaimpresion.php`
 
-        // const options = {
-        //   method: 'POST',
-        //   headers: {
-        //     Accept: 'application/form-data'
-        //   },
-        //   body: formData
-        // }
-
-        // NetInfo.fetch().then((state) => {
-        //   if (state.isConnected == true) {
-
-        //     setLoading(true);
-            
-        //     fetch( `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/registrarencolaimpresion.php`, options)
-        //       .then((response) => response.text())
-        //       .then((json) => {
-        //         console.log(json);
-        //         if (JSON.stringify(json) == '"1"') {
-        //           messageSuccess("¡Su petición de impresión ha sido enviada!");
-        //           setPrint(true);
-        //           setPrintOk(true);
-        //         } else {
-        //         messageError("Su petición de impresión no fue enviada");
-        //         }
-        //         setLoading(false);
-        //       })
-        //       .catch((error) => {
-        //         console.error(error);
-        //         setLoading(false);
-        //         messageError("revice su conexión a internet e inténtelo de nuevo");
-        //       });
-        //   } else {
-        //     messageWarning("Parece que no está conectado a la red");
-        //   }
-        // });
-
         MyCustomFetch({
           callbackOk, 
           callBackError,
@@ -200,15 +205,48 @@ import { getHeaderTitle } from '@react-navigation/elements';
 
       }
 
+      const fetchDeleteCarnet = () => {//todo:FETCH Delete Printing
+
+        const callbackOk = (json) => {
+          console.log(json);
+          if (JSON.stringify(json) != '0') {
+            fetchSentCarnet();
+          } 
+          else {
+            messageError("Ocurrió un error al procesar su petición");
+          }
+          setLoading(false);
+        }
+          
+        const callBackError = (error) => {
+          console.error(error);
+          setLoading(false);
+          messageError("revice su conexión a internet e inténtelo de nuevo");
+        }
+
+        let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wseliminardecolaimpresion.php?IDPersona=${IDCarnet}`
+
+        MyCustomFetch2({
+          callbackOk, 
+          callBackError,
+          callBackStateLoaddingTrue,
+          callBackStateLoadingFalse,
+          url,
+        });
+      }
+
       const printingCarnet = () => {
 
-        getData();
+        getData(); // getting asyncstorage value
 
-        if(selectedId !== null){        
-          if(printOk == true) {
+        // alert(JSON.stringify(printOk));
+
+        if(selectedId !== null){  // selectedId de zona de trabajo  
+
             Alert.alert(  
               'Información',  
-              'Ya hay una petición de impresión enviada, ¿desea volver a enviarla? pulse OK.',  
+              // 'Ya hay una petición de impresión enviada, ¿desea volver a enviarla? pulse OK.',  
+              'Ya hay una petición de impresión enviada, ¿desea eliminar y volver a enviar? Pulse OK.',  
               [  
                   {  
                       text: 'Cancelar',  
@@ -217,14 +255,10 @@ import { getHeaderTitle } from '@react-navigation/elements';
                       style: 'cancel',  
                   },  
                   {text: 'OK', 
-                  onPress: ()=> [ fetchSentCarnet()]
+                  onPress: ()=> [ fetchDeleteCarnet()]
                 },   
               ]  
             ); 
-          }
-          else {
-            fetchSentCarnet();
-          }
         } 
         else {
           Alert.alert("Información","Para imprimir, primero debe configurar su zona de trabajo. vaya a Configuración.")
@@ -307,7 +341,21 @@ import { getHeaderTitle } from '@react-navigation/elements';
             aspect: [4, 4], // 4,4 mantienen el el formato ideal
             quality: 0.5,
             base64: true
-          });
+          })
+
+          if (cameraType === Camera.Constants.Type.front) {
+            data = await manipulateAsync(
+              data.localUri || data.uri,
+                [
+                    { rotate: 180 },
+                    { flip: FlipType.Vertical },
+                ],
+                { compress: 1, format: SaveFormat.PNG }
+            );
+        }
+    
+        // setFrontProfile(photo.uri);
+
           // console.log(image); // cadena base64 obtenida del state image
           setImage(data.base64) //? asignando la foto tomada, para guardarla
           // console.log(data.uri); // uri de foto obtenida
@@ -420,8 +468,9 @@ import { getHeaderTitle } from '@react-navigation/elements';
                 <Text style={styles.buttonText}>ELEGIR DE GALERÍA</Text>
               </TouchableOpacity>
               {print == true?
-                <TouchableOpacity onPress={printingCarnet} 
+                <TouchableOpacity onPress={fetchConsultColaImpresion} 
                     style={[styles.touchstate, styles.touchPrint]}>
+                {/* <TouchableOpacity onPress={printingCarnet}  */}
                 <Text style={styles.textUpdStyle}>
                   IMPRIMIR
                 </Text>
@@ -469,7 +518,9 @@ import { getHeaderTitle } from '@react-navigation/elements';
               </Text>
             </TouchableOpacity>
             {print == true && Foto!= ""?
-              <TouchableOpacity onPress={printingCarnet} 
+              <TouchableOpacity 
+              // onPress={printingCarnet} 
+              onPress={fetchConsultColaImpresion}
                     style={[styles.touchstate, styles.touchPrint]}>
                 <Text style={styles.textUpdStyle}>
                   IMPRIMIR
