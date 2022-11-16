@@ -9,7 +9,7 @@ Esta Aplicación estará destinada a la gestión de carnetización de docentes y
 
 # Correr
 
-Para correr este código debe tener instalados Node.js , SDK de Android para aplicaciones de Android y XCode para aplicaciones de iOS junto con CocoaPods. Además este código creado utilizando Expo.
+Para correr este código debe tener instalado el cliente de <strong>Expo</strong>, y además tener instalado en el dispositivo móvil la aplicación Expo Go
 
 
 Después de descargar el código fuente, descomprimirlo y ejecutar:
