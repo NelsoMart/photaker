@@ -1,41 +1,35 @@
-import { View, Text, Image, StyleSheet,Button, 
+import { View, Text, Image, StyleSheet,
            TouchableOpacity, ScrollView, Alert } from 'react-native';
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 
-
-import DispachMessage from '../src/useFlashMessage';
-import useFetch from '../src/useFetch';
+import DispachMessage from '../hooks/useFlashMessage';
+import useFetch from '../hooks/useFetch';
 
 // import * as Network from 'expo-network';
 
-import NetInfo from '@react-native-community/netinfo';
+// import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //media
-import { Camera } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 //save in galery
 import * as MediaLibrary from 'expo-media-library';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 
-
-// import * as Permissions from 'expo-permissions'; // ver estp luego
-
-// import ImgToBase64 from 'react-native-image-base64';
-import fetchDatos from './fetchDatos';
-// import RNFS from 'react-native-fs';
+import MyCamera from '../screens/Camera';
 
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import {useNavigation} from '@react-navigation/native'; 
-import { getHeaderTitle } from '@react-navigation/elements';
+import {useNavigation} from '@react-navigation/native';
+import contextbase from '../contexts/ContextBase';
 
   export default function Perfil({route}) {
 
-    //* -------------- Deconstrucción de mis hooks ---------------
+    //* --------------  hooks deconstruction---------------
     const {
           messageError,
           messageWarning,
@@ -46,10 +40,12 @@ import { getHeaderTitle } from '@react-navigation/elements';
       MyCustomFetch,
       MyCustomFetch2
     } = useFetch();
+
+    const { camera } = useContext(contextbase);
     //* -----------------------------------------------------------
 
       const navigation = useNavigation();
-      
+
       //datos del carnet
       const {IDCarnet, Nombre, Description, Foto, Carnet} = route.params
 
@@ -59,28 +55,29 @@ import { getHeaderTitle } from '@react-navigation/elements';
       const [cameraPermission, setCameraPermission] = useState(null);
       const [galleryPermission, setGalleryPermission] = useState(null);
 
-      const [camera, setCamera] = useState(null);
+      // const [camera, setCamera] = useState(null);
       const [type, setType] = useState(Camera.Constants.Type.back);
       const [loading, setLoading] = useState(false);
-      const [netInfo, setNetInfo] = useState('');
+      // const [netInfo, setNetInfo] = useState('');
       const [print, setPrint] = useState(true);
       const [printOk, setPrintOk] = useState(false)
       const [selectedId, setSelectedId] = useState(null); // obtendrá el estado de la zona de impresión elegida
+
+      const FetchPlace = "LikeGET";
 
 
       useEffect(() => {
         // focus to auto calling function
         const willFocusSubscription = navigation.addListener('focus', () => {
-          getData();  
-          // alert(JSON.stringify(Foto))
+          getData();
         });
 
         //* Subscribe to network state updates
-        const unsubscribe = NetInfo.addEventListener((state) => {
-          setNetInfo(
-            state.isConnected
-          );
-        });
+        // const unsubscribe = NetInfo.addEventListener((state) => {
+        //   setNetInfo(
+        //     state.isConnected
+        //   );
+        // });
 
         navigation.setOptions({ //* no debe estar fuera de useEffect
           //* nombre del status bar
@@ -92,7 +89,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
 
         return () => {
           //* Unsubscribe to network state updates
-          unsubscribe();
+          // unsubscribe();
           willFocusSubscription;
         };
 
@@ -108,7 +105,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
         try {
           const jsonValue = await AsyncStorage.getItem('@storage_Key')
           return jsonValue != null ? setSelectedId(JSON.parse(jsonValue)) : null;
-          
+
         } catch(e) {
           // error reading value
           console.log(e)
@@ -123,29 +120,20 @@ import { getHeaderTitle } from '@react-navigation/elements';
         setLoading(false)
       }
 
-      const FetchPlace = "LikeGET";
-
       const fetchConsultColaImpresion = () => {//todo: FETCH consulta de impresión
 
         const callbackOk = (json) => {
-          console.log('Log de Consulta Cola de Impresion ' + json);
+          // console.log('Log de Consulta Cola de Impresion ' + json);
           if (JSON.stringify(json) == '0') {
-            // messageSuccess("es cero, No hay petición");
-            // alert("es cero")
             fetchSentCarnet();
-          } 
+          }
           else {
-            // messageWarning("NO es cero, Ya hay petición enviada");
-            // setPrint(true);
-            // alert("no es cero")
-            
             printingCarnet();
             setPrintOk(true);
-
           }
           setLoading(false);
         }
-          
+
         const callBackError = (error) => {
           console.error(error);
           setLoading(false);
@@ -155,7 +143,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
         let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wsconsultarcolaimpresion.php?IDPersona=${IDCarnet}`
 
         MyCustomFetch2({
-          callbackOk, 
+          callbackOk,
           callBackError,
           callBackStateLoaddingTrue,
           callBackStateLoadingFalse,
@@ -168,18 +156,18 @@ import { getHeaderTitle } from '@react-navigation/elements';
       const fetchSentCarnet = () =>{//todo:FETCH de Impresión
 
         const callbackOk = (json) => {
-          console.log(json);
+          // console.log(json);
           if (JSON.stringify(json) == '"1"') {
             messageSuccess("¡Su petición de impresión ha sido enviada!");
             setPrint(true);
             // setPrintOk(true);
-          } 
+          }
           else {
             messageError("Su petición de impresión no fue enviada");
           }
           setLoading(false);
         }
-          
+
         const callBackError = (error) => {
           console.error(error);
           setLoading(false);
@@ -187,14 +175,14 @@ import { getHeaderTitle } from '@react-navigation/elements';
         }
 
         const formData = new FormData();
-        formData.append("IDPersona", IDCarnet) //? Podría contener  el ID ya sea de empleado o de estudiante
-        formData.append("Salida", Carnet.toUpperCase()) //? El texto debe ser en mayúsculas, porque así se recibe en el lado del servidor
-        formData.append("WorkzoneId", selectedId) //? para el tipo de partamento, que puede ser UTI, Biblioteca, Contadiría, ...
+        formData.append("IDPersona", IDCarnet) //? add ID either employee or student
+        formData.append("Salida", Carnet.toUpperCase()) //? Carnet has to be in uppecase beause that is how it is received from de server side
+        formData.append("WorkzoneId", selectedId) //? this will serve for configure the printing zone
 
         let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/registrarencolaimpresion.php`
 
         MyCustomFetch({
-          callbackOk, 
+          callbackOk,
           callBackError,
           callBackStateLoaddingTrue,
           callBackStateLoadingFalse,
@@ -208,16 +196,16 @@ import { getHeaderTitle } from '@react-navigation/elements';
       const fetchDeleteCarnet = () => {//todo:FETCH Delete Printing
 
         const callbackOk = (json) => {
-          console.log(json);
+          // console.log(json);
           if (JSON.stringify(json) != '0') {
             fetchSentCarnet();
-          } 
+          }
           else {
             messageError("Ocurrió un error al procesar su petición");
           }
           setLoading(false);
         }
-          
+
         const callBackError = (error) => {
           console.error(error);
           setLoading(false);
@@ -227,7 +215,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
         let url  = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/wseliminardecolaimpresion.php?IDPersona=${IDCarnet}`
 
         MyCustomFetch2({
-          callbackOk, 
+          callbackOk,
           callBackError,
           callBackStateLoaddingTrue,
           callBackStateLoadingFalse,
@@ -235,31 +223,30 @@ import { getHeaderTitle } from '@react-navigation/elements';
         });
       }
 
-      const printingCarnet = () => {
+      const printingCarnet = () => {// Alert of Descision 
 
-        getData(); // getting asyncstorage value
+        // getData(); // getting asyncstorage value
 
         // alert(JSON.stringify(printOk));
 
-        if(selectedId !== null){  // selectedId de zona de trabajo  
+        if(selectedId !== null){  // selectedId de zona de trabajo
 
-            Alert.alert(  
-              'Información',  
-              // 'Ya hay una petición de impresión enviada, ¿desea volver a enviarla? pulse OK.',  
-              'Ya hay una petición de impresión enviada, ¿desea eliminar y volver a enviar? Pulse OK.',  
-              [  
-                  {  
-                      text: 'Cancelar',  
-                    // algo 
+            Alert.alert(
+              'Información',
+              'Ya hay una petición de impresión enviada, ¿desea eliminar y volver a enviar? Pulse OK.',
+              [
+                  {
+                      text: 'Cancelar',
+                    // algo
                     onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',  
-                  },  
-                  {text: 'OK', 
+                      style: 'cancel',
+                  },
+                  {text: 'OK',
                   onPress: ()=> [ fetchDeleteCarnet()]
-                },   
-              ]  
-            ); 
-        } 
+                },
+              ]
+            );
+        }
         else {
           Alert.alert("Información","Para imprimir, primero debe configurar su zona de trabajo. vaya a Configuración.")
         }
@@ -268,16 +255,16 @@ import { getHeaderTitle } from '@react-navigation/elements';
       const fetch_updating = async () => { //todo: FETCH updating photo
 
         const callbackOk = (json) => {
-          console.log(json);
-          if (JSON.stringify(json) == '"1"') {
-            messageSuccess("¡Su carnet ha sido actualizado!");
-            setPrint(true);
-          } else {
-            messageError("Su carnet no ha sido actualizado");
-          }
-          setLoading(false);
+            console.log(json);
+            if (JSON.stringify(json) == '"1"') {
+              messageSuccess("¡Su carnet ha sido actualizado!");
+              setPrint(true);
+            } else {
+              messageError("Su carnet no ha sido actualizado");
+            }
+            setLoading(false);
         }
-          
+
         const callBackError = (error) => {
           console.error(error);
           setLoading(false);
@@ -285,22 +272,22 @@ import { getHeaderTitle } from '@react-navigation/elements';
         }
 
         const formData = new FormData();
-          formData.append("IDCarnet", IDCarnet) //? 'IDCarnet' podría contener el ID, ya sea de empleado o de estudiante
-          formData.append("Foto", image) //? 'image' podría contener la foto, ya sea de empleado o de estudiante
-        
-        let mod="";       
+          formData.append("IDCarnet", IDCarnet) //? add ID either employee or student
+          formData.append("Foto", image) //? add Photo either employee or student
+
+        let mod="";
 
         if (Carnet == "Estudiante") {
           mod = "actualizarfotoestudiante";
-        } 
+        }
         else {
           mod = "actualizarfoto";
-        } 
+        }
 
         let url = `https://ws.usonsonate.edu.sv/wscarnetvirtual/ws/${mod}.php`;
 
         MyCustomFetch({
-          callbackOk, 
+          callbackOk,
           callBackError,
           callBackStateLoaddingTrue,
           formData,
@@ -314,7 +301,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
         //here is how we can get the camera permission
 
         const cameraPermission = await Camera.requestCameraPermissionsAsync();
-          
+
         setCameraPermission(cameraPermission.status === 'granted');
 
         const imagePermission = await ImagePicker.getMediaLibraryPermissionsAsync();
@@ -331,19 +318,22 @@ import { getHeaderTitle } from '@react-navigation/elements';
         {
           setMisPermisos(true)
           setSelectedImage(null)
-          
+
         }
       }
 
       const takePicture = async () => {
+
         if (camera) {
+          
           let data = await camera.takePictureAsync({
-            aspect: [4, 4], // 4,4 mantienen el el formato ideal
+            aspect: [4, 4], // 4,4 getting the best format
             quality: 0.5,
             base64: true
           })
 
-          if (cameraType === Camera.Constants.Type.front) {
+          if (CameraType === Camera.Constants.Type.front) {
+            alert('hey!')
             data = await manipulateAsync(
               data.localUri || data.uri,
                 [
@@ -352,8 +342,8 @@ import { getHeaderTitle } from '@react-navigation/elements';
                 ],
                 { compress: 1, format: SaveFormat.PNG }
             );
-        }
-    
+          }
+
         // setFrontProfile(photo.uri);
 
           // console.log(image); // cadena base64 obtenida del state image
@@ -362,11 +352,12 @@ import { getHeaderTitle } from '@react-navigation/elements';
           setSelectedImage(data.uri); //? asignando la foto tomada, para visualizarla
           setPrint(false); //? ocultando el botón de imprimir
         }
+
       };
 
       const OpeningGalery = async () => {
 
-        console.log("Async Value: ", selectedId);
+        // console.log("Async Value: ", selectedId);
 
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -387,7 +378,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
         // setSelectedImage(null);
         setSelectedImage(pickerResult.uri);
         setPrint(false); // para ocultar el botón de impresión
-        
+
       };
 
       const MyColorTextDescription = () => {
@@ -407,16 +398,17 @@ import { getHeaderTitle } from '@react-navigation/elements';
       if (MisPermisos !== false && selectedImage == null) { //todo: Screen Open Camera
         return (
           <View style={styles.container}>
-            <View style={styles.cameraContainer}>
-              <Camera
-                ref={(ref) => setCamera(ref)}
-                style={styles.fixedRatio}
-                type={type}
-                ratio={"2:2"}
-                // useCamera2Api={true}
-                // ratio={"1,1"}
-              />
-            </View>
+            <MyCamera type = {type}/>
+            {/* <View style={styles.cameraContainer}>
+                <Camera
+                  ref={(ref) => setCamera(ref)}
+                  style={styles.fixedRatio}
+                  type={type}
+                  ratio={"2:2"}
+                  // useCamera2Api={true}
+                  // ratio={"1,1"}
+                />
+            </View> */}
             <TouchableOpacity
               style={[styles.btnApp, { left: 20 }]}
               onPress={() => {
@@ -468,7 +460,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
                 <Text style={styles.buttonText}>ELEGIR DE GALERÍA</Text>
               </TouchableOpacity>
               {print == true?
-                <TouchableOpacity onPress={fetchConsultColaImpresion} 
+                <TouchableOpacity onPress={fetchConsultColaImpresion}
                     style={[styles.touchstate, styles.touchPrint]}>
                 {/* <TouchableOpacity onPress={printingCarnet}  */}
                 <Text style={styles.textUpdStyle}>
@@ -476,7 +468,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
                 </Text>
               </TouchableOpacity>
               :
-              <TouchableOpacity onPress={fetch_updating} 
+              <TouchableOpacity onPress={fetch_updating}
                   style={[styles.touchstate, styles.touchUpdt]}>
                 <Text style={styles.textUpdStyle}>
                   ACTUALIZAR
@@ -498,12 +490,12 @@ import { getHeaderTitle } from '@react-navigation/elements';
         <Text style={styles.ParamstextName}>{Nombre}</Text>
         <Text style={[styles.ParamstextDescription, MyColorTextDescription()]}>{Description}</Text>
           { JSON.stringify(Foto)!='""'?
-            <Image style={styles.imageProfil} 
-                   source={{uri: `data:image/gif;base64,${Foto}`}} 
+            <Image style={styles.imageProfil}
+                   source={{uri: `data:image/gif;base64,${Foto}`}}
              />
              :
-            <Image style={[styles.imageProfil, styles.imageDefault]} 
-                   source={require('../assets/persona.png')} 
+            <Image style={[styles.imageProfil, styles.imageDefault]}
+                   source={require('../assets/persona.png')}
              />
           }
           <View style={styles.contentTouch}>
@@ -518,8 +510,8 @@ import { getHeaderTitle } from '@react-navigation/elements';
               </Text>
             </TouchableOpacity>
             {print == true && Foto!= ""?
-              <TouchableOpacity 
-              // onPress={printingCarnet} 
+              <TouchableOpacity
+              // onPress={printingCarnet}
               onPress={fetchConsultColaImpresion}
                     style={[styles.touchstate, styles.touchPrint]}>
                 <Text style={styles.textUpdStyle}>
@@ -536,7 +528,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
 
   const styles = StyleSheet.create({
     content: {
-      flex: 1, 
+      flex: 1,
       alignContent: "center",
       alignItems: "center",
       alignContent: "center",
@@ -608,8 +600,8 @@ import { getHeaderTitle } from '@react-navigation/elements';
       borderBottomColor: "#00bcc9",
     },
     textUpdStyle:{
-      color: "white", 
-      justifyContent: "center", 
+      color: "white",
+      justifyContent: "center",
       textAlign: "center",
       fontWeight: '600',
     },

@@ -1,8 +1,5 @@
 //import liraries
-import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { showMessage, hideMessage } from "react-native-flash-message";
-
 
 // create a component
 const DispachMessage = () => {
@@ -13,7 +10,7 @@ const DispachMessage = () => {
             type: "danger",
             description: description,
             position: "top",
-            titleStyle: {paddingTop: 40}
+            titleStyle: {paddingTop: 35}
           });
     }
 

@@ -4,29 +4,24 @@ import React, { useEffect, useState, useCallback, useRef} from 'react';
 
 import { View, Text, StyleSheet, TouchableOpacity,TextInput, 
           Alert, RefreshControl, FlatList, ActivityIndicator} from 'react-native';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
+
+import {useNavigation} from '@react-navigation/native';
 import { Keyboard } from 'react-native'; 
 import LottieView from 'lottie-react-native';
 import NotFoundAnimation from '../LottieFiles/94729-not-found.json';
-import NetInfo from '@react-native-community/netinfo';
 
-import { showMessage } from "react-native-flash-message";
-// import { useIsFocused } from '@react-navigation/native';
+import DispachMessage from '../hooks/useFlashMessage';
+import useFetch from '../hooks/useFetch';
 
 Keyboard.dismiss()
 
-import fetchDatos from '../Components/fetchDatos';
-import DispachMessage from '../src/useFlashMessage';
-import useFetch from '../src/useFetch';
+
 
 
 // create a function
 export default function Busqueda({route}) {
 
-  // This hook returns `true` if the screen is focused, `false` otherwise
-  // const isFocused = useIsFocused();
-
-//* -------------- Deconstrucción de mis hooks ---------------
+//* -------------- Custom Hooks Deconstruction ---------------
         const {
           messageError,
           // messageWarning,
@@ -65,22 +60,12 @@ export default function Busqueda({route}) {
 
     useEffect(() => {
 
-      // Subscribe to network state updates
-      const unsubscribe = NetInfo.addEventListener((state) => {
-        // setNetInfo(state.isConnected);
-      });
-
-      // onFocusHandler();
-
       if (Carnet == "Estudiante") {
         SetInputTtype("number-pad");
       } else {
         SetInputTtype("default");
       }
-      return () => {
-        // Unsubscribe to network state updates
-        unsubscribe();
-      };
+ 
     }, [MyInputType, Carnet, text, refreshing, loading, inputRef]);
 
 
@@ -124,7 +109,7 @@ export default function Busqueda({route}) {
         setRefreshing(false);
         setLoading(false);
 
-        //?Deconstrucción if empleado
+        //?Deconstruction if empleado when result is one
         // const {IDEmpleado, Empleado, Cargo, Unidad, Foto} = json[0];
         // setIdEmpleado(IDEmpleado);
         // SetEmpleado(Empleado);
@@ -247,7 +232,6 @@ export default function Busqueda({route}) {
         {/* <Image source={require('../assets/logo_uso.jpeg')} style={styles.imageSt}/> */}
         <View style={{flexDirection: 'row',}}>
         <Text>Búsqueda de Usuario:</Text>
-        {/* <Text>{isFocused ? 'focused' : 'unfocused'}</Text> */}
         <Text style={{color:Carnet=="Estudiante"?'#2EA1F0':'#28B463'}}> { Carnet }</Text>
         </View>
         <TextInput 
@@ -308,13 +292,11 @@ export default function Busqueda({route}) {
             enableEmptySections={true}
             ItemSeparatorComponent={ListViewItemSeparator}
             data={data}
-            // renderItem={({ item }) => renderItem(item, navigation)}
             renderItem={renderItem}
-            // keyExtractor={(item, index) => index.toString()}
             keyExtractor={keyExtractor}
             //* Performance settings
             getItemLayout={getItemLayout}
-            windowSize={100} // Reduce the window size 300 ideal pero lenta // muy importante, pero si la reduzco más, hace un molesto parpadeo de la lista
+            windowSize={100} // Reduce the window size. 300 ideal but slow// muy importante, pero si la reduzco más, hace un molesto parpadeo de la lista
             removeClippedSubviews={true} // Unmount components when outside of window
             initialNumToRender={5} // Reduce initial render amount
             maxToRenderPerBatch={15} // Reduce number in each render batch
@@ -325,7 +307,6 @@ export default function Busqueda({route}) {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh.bind(this)}
-                // onRefresh={() => onRefresh()}
               />
             }
           />

@@ -1,14 +1,12 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { StyleSheet, Text, View, FlatList, StatusBar, RefreshControl,
             SafeAreaView,TouchableOpacity } from 'react-native';
-import NetInfo from '@react-native-community/netinfo';
-import { showMessage } from "react-native-flash-message";
-import { Ionicons, Feather  } from "@expo/vector-icons";
+
+import { Feather  } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import DispachMessage from '../src/useFlashMessage';
-import useFetch from '../src/useFetch';
-
+import DispachMessage from '../hooks/useFlashMessage';
+import useFetch from '../hooks/useFetch';
 
 const Item = ({ item, onPress, borderColor, textColor }) => (
   <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={[styles.item, borderColor]}>
@@ -22,8 +20,8 @@ export default function Settings() {
   // const [DATA, setDATA] = useState([{workzoneId: 1, Empleado: 'UTI'}, {workzoneId: 2, Empleado: 'SECRETARÍA'}, {workzoneId: 3, Empleado: 'BIBLIOTECA'},]);
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(true)
-  const [badConnection, setbadConnection] = useState(false) // Para decidir colocar el icono indicativo de mala conexión
-  const [selectedId, setSelectedId] = useState(null); // colocar 1 para dejar listo 
+  const [badConnection, setbadConnection] = useState(false) // to indicate bad conection through an icon
+  const [selectedId, setSelectedId] = useState(null); // to capture asyncstorage workzone value
 
   //* --------------  Custom Hooks Deconstruction ---------------
     const {
@@ -44,7 +42,7 @@ export default function Settings() {
     //Clear old data of the list
     setData([])
     setRefreshing(true)
-    //Call the Service to get the latest data
+    //getting fetch data
     fetchData()
   }
   
@@ -136,15 +134,7 @@ export default function Settings() {
       );
   };
 
-    const keyExtractor = useCallback((item)=>item.workzoneId.toString(), []);
-    const ITEM_HEIGHT = 200;
-    const getItemLayout = useCallback(
-    (data, index) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [] )
+  const keyExtractor = useCallback((item)=>item.workzoneId.toString(), []);
     
     return (
       <SafeAreaView style={styles.container}>
@@ -171,6 +161,9 @@ export default function Settings() {
           </View>
           
         }
+        <View style={styles.ViewVersion}>
+          <Text style={styles.textInfo}> Versión: 1.0.18 </Text>
+        </View>
       </SafeAreaView>
     );
  }
@@ -187,9 +180,8 @@ export default function Settings() {
         marginBottom: 20,
       },
       text: {
-          fontSize: 20,
-          fontWeight: 'bold',
-
+        fontSize: 20,
+        fontWeight: 'bold',
       },
       textNetwork:{
         fontSize: 20,
@@ -210,5 +202,14 @@ export default function Settings() {
       title: {
         fontSize: 18,
         textAlign: 'center',
+      },
+      ViewVersion:{
+        flex: 1,
+        justifyContent: 'flex-end',
+        marginBottom: 10,
+      },
+      textInfo:{
+        textAlign: 'center',
+        color: '#3D6168',
       },
     });

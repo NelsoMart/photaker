@@ -1,17 +1,14 @@
 //import liraries
-import React from 'react';
 import NetInfo from '@react-native-community/netinfo';
-import DispachMessage from '../src/useFlashMessage';
+import DispachMessage from '../hooks/useFlashMessage';
 
-
-// create a component
+// create component
 const useFetch = () => {
-  //* -------------- Deconstrucción de mis hooks ---------------
+  //* -------------- Custom Hooks Deconstruction ---------------
   const {
-    messageWarning,
-} = DispachMessage();
-//* -----------------------------------------------------------
-
+    messageError,
+  } = DispachMessage();
+  //* -----------------------------------------------------------
 
     const MyCustomFetch = (props) => {
 
@@ -25,8 +22,6 @@ const useFetch = () => {
             },
             body: formData
           }
-
-          // callBackStateLoaddingTrue();
 
           NetInfo.fetch().then((state) => {
 
@@ -44,18 +39,17 @@ const useFetch = () => {
               });
             } 
             else {
-              messageWarning("Parece que no está conectado a la red");
+              messageError("Parece que no está conectado a la red");
               callBackStateLoadingFalse();
             } 
-          })   
+          })
+
     }
 
     const MyCustomFetch2 = (props) => {
 
-      const {callbackOk, callBackError, url, formData, FetchPlace, 
-               callBackStateLoaddingTrue, callBackStateLoadingFalse} = props
-      
-
+      const {callbackOk, callBackError, url, callBackStateLoaddingTrue, 
+              callBackStateLoadingFalse} = props
 
         NetInfo.fetch().then((state) => {
 
@@ -84,7 +78,6 @@ const useFetch = () => {
         MyCustomFetch2
    }
 };
-
 
 //make this component available to the app
 export default useFetch;
