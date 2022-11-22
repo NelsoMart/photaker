@@ -67,7 +67,7 @@ const useFetch = () => {
             });
           } 
           else {
-            messageWarning("Parece que no está conectado a la red");
+            messageError("Parece que no está conectado a la red");
             callBackStateLoadingFalse();
           } 
         })   
