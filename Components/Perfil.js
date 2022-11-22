@@ -29,7 +29,7 @@ import contextbase from '../contexts/ContextBase';
 
   export default function Perfil({route}) {
 
-    //* --------------  hooks deconstruction---------------
+    //* --------------  my hooks deconstruction---------------
     const {
           messageError,
           messageWarning,
@@ -63,7 +63,7 @@ import contextbase from '../contexts/ContextBase';
       const [printOk, setPrintOk] = useState(false)
       const [selectedId, setSelectedId] = useState(null); // obtendrá el estado de la zona de impresión elegida
 
-      const FetchPlace = "LikeGET";
+      const FetchPlace = "LikeGET";  
 
 
       useEffect(() => {
@@ -174,7 +174,7 @@ import contextbase from '../contexts/ContextBase';
           messageError("revice su conexión a internet e inténtelo de nuevo");
         }
 
-        const formData = new FormData();
+        const formData = new FormData(); 
         formData.append("IDPersona", IDCarnet) //? add ID either employee or student
         formData.append("Salida", Carnet.toUpperCase()) //? Carnet has to be in uppecase beause that is how it is received from de server side
         formData.append("WorkzoneId", selectedId) //? this will serve for configure the printing zone
