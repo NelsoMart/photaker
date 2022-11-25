@@ -1,5 +1,5 @@
 # USO IDCard 
-(phototaker)
+(photaker)
 
 # Aplicación Móvil de la Universidad de Sonsonate (USO).
 
