@@ -14,5 +14,7 @@ Para correr este código debe tener instalado el cliente de <a href="https://doc
 
 Después de descargar el código fuente, descomprimirlo y ejecutar:
 
+<Strong>npm install</Strong>
+
 <Strong>npx expo start</Strong>
 
