@@ -9,10 +9,10 @@ Esta Aplicación estará destinada a la gestión de carnetización de docentes y
 
 # Correr
 
-Para correr este código debe tener instalado el cliente de <strong>Expo</strong>, y además tener instalado en el dispositivo móvil la aplicación <strong>Expo Go</strong>
+Para correr este código debe tener instalado el cliente de <a href="https://docs.expo.dev">Expo</a>, y además tener instalado en el dispositivo móvil la aplicación <a href="https://expo.dev/client">Expo Go</a> para ejecutar el proyecto.
 
 
 Después de descargar el código fuente, descomprimirlo y ejecutar:
 
-npx expo start
+<Strong>npx expo start</Strong>
 
