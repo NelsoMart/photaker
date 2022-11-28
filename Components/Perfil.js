@@ -29,10 +29,10 @@ import contextbase from '../contexts/ContextBase';
 
   export default function Perfil({route}) {
 
-    //* --------------  my hooks deconstruction---------------
+    //? --------------  my hooks deconstruction ---------------
     const {
           messageError,
-          messageWarning,
+          // messageWarning,
           messageSuccess
     } = DispachMessage();
 
@@ -42,7 +42,7 @@ import contextbase from '../contexts/ContextBase';
     } = useFetch();
 
     const { camera } = useContext(contextbase);
-    //* -----------------------------------------------------------
+    //? -----------------------------------------------------------
 
       const navigation = useNavigation();
 
