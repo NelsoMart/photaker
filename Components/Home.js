@@ -16,6 +16,7 @@ export default function Home() {
     })
   }
 
+  // Going to find both Employee and Student
   let GoingToSearchEST = () =>{
     navigation.navigate('Búsqueda', {
       Carnet: CarnetEST
